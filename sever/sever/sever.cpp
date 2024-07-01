@@ -69,7 +69,5 @@ int main() {
     closesocket(clientSocket);
     closesocket(serverSocket);
     WSACleanup();
-
-    cout << "hello word << endl";
     return 0;
 }
