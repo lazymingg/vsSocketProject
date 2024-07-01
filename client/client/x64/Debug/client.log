@@ -1,0 +1,3 @@
+﻿  client.cpp
+D:\coding\socketProject\vsSocketProject\client\client\client.cpp(43,42): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+  client.vcxproj -> D:\coding\socketProject\vsSocketProject\client\x64\Debug\client.exe
