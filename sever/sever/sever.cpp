@@ -1,7 +1,7 @@
 ﻿#include <winsock2.h>
 #include <ws2tcpip.h>
 #include <iostream>
-
+using namespace std;
 #pragma comment(lib, "ws2_32.lib")
 
 int main() {
@@ -70,6 +70,6 @@ int main() {
     closesocket(serverSocket);
     WSACleanup();
 
-    //hello 
+    cout << "hello word << endl";
     return 0;
 }
