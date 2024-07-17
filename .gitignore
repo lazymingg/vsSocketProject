@@ -1,2 +1,4 @@
 .vs/
-sever/sever/file/*
+# sever/sever/file/*
+
+# !sever/sever/file/*
