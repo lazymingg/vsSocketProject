@@ -1,28 +1,22 @@
-﻿#include <winsock2.h>
-#include <ws2tcpip.h>
-#include <iostream>
+﻿#include "sever.h"
+
 using namespace std;
-#pragma comment(lib, "ws2_32.lib")
-
-int main() {
-    WSADATA wsaData;
-    SOCKET serverSocket, clientSocket;
-    sockaddr_in serverAddr, clientAddr;
-    int clientAddrSize = sizeof(clientAddr);
-    char buffer[512];
-
+Sever::Sever()
+{
     // Khởi tạo Winsock
-    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
+    {
         std::cerr << "WSAStartup failed" << std::endl;
-        return 1;
+        exit(1);
     }
 
     // Tạo một socket
     serverSocket = socket(AF_INET, SOCK_STREAM, 0);
-    if (serverSocket == INVALID_SOCKET) {
+    if (serverSocket == INVALID_SOCKET)
+    {
         std::cerr << "Socket creation failed" << std::endl;
         WSACleanup();
-        return 1;
+        exit(1);
     }
 
     // Gán địa chỉ cho socket
@@ -30,44 +24,77 @@ int main() {
     serverAddr.sin_addr.s_addr = INADDR_ANY;
     serverAddr.sin_port = htons(8080);
 
-    if (bind(serverSocket, (sockaddr*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR) {
+    if (bind(serverSocket, (sockaddr*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR)
+    {
         std::cerr << "Bind failed" << std::endl;
         closesocket(serverSocket);
         WSACleanup();
-        return 1;
+        exit(1);
     }
 
     // Lắng nghe các kết nối từ client
-    if (listen(serverSocket, SOMAXCONN) == SOCKET_ERROR) {
+    if (listen(serverSocket, SOMAXCONN) == SOCKET_ERROR)
+    {
         std::cerr << "Listen failed" << std::endl;
         closesocket(serverSocket);
         WSACleanup();
-        return 1;
+        exit(1);
     }
 
     std::cout << "Server is listening on port 8080..." << std::endl;
+}
 
-    // Chấp nhận kết nối từ client
-    clientSocket = accept(serverSocket, (sockaddr*)&clientAddr, &clientAddrSize);
-    if (clientSocket == INVALID_SOCKET) {
-        std::cerr << "Accept failed" << std::endl;
-        closesocket(serverSocket);
-        WSACleanup();
-        return 1;
-    }
-
-    std::cout << "Client connected!" << std::endl;
-
-    // Nhận và gửi dữ liệu
-    int bytesReceived = recv(clientSocket, buffer, sizeof(buffer), 0);
-    if (bytesReceived > 0) {
-        std::cout << "Received: " << std::string(buffer, 0, bytesReceived) << std::endl;
-        send(clientSocket, buffer, bytesReceived, 0);
-    }
-
-    // Ngắt kết nối
-    closesocket(clientSocket);
+Sever ::~Sever()
+{
     closesocket(serverSocket);
     WSACleanup();
-    return 0;
+}
+
+
+
+
+
+void HandleClient(SOCKET ClientSocket)
+{
+    char recvbuf[DEFAULT_BUFLEN];
+    int recvbuflen = DEFAULT_BUFLEN;
+    int iResult;
+
+    // do something
+    FileService fileService;
+    fileService.setFileArr();
+    fileService.sendFileArr(ClientSocket);
+    // Shutdown the connection since we're done
+    iResult = shutdown(ClientSocket, SD_SEND);
+    if (iResult == SOCKET_ERROR)
+    {
+        printf("shutdown failed: %d\n", WSAGetLastError());
+        closesocket(ClientSocket);
+        return;
+    }
+
+    // Cleanup
+    closesocket(ClientSocket);
+}
+void Sever::run()
+{
+    std::vector<std::thread> clientThreads;
+    std::mutex clientThreadsMutex;
+
+    while (true)
+    {
+        clientSocket = accept(serverSocket, (sockaddr*)&clientAddr, &clientAddrSize);
+        if (clientSocket == INVALID_SOCKET)
+        {
+            std::cerr << "Accept failed" << std::endl;
+            closesocket(serverSocket);
+            WSACleanup();
+            exit(1);
+        }
+
+        std::cout << "Client connected" << std::endl;
+
+        std::lock_guard<std::mutex> lock(clientThreadsMutex);
+        clientThreads.push_back(std::thread(HandleClient, clientSocket));
+    }
 }

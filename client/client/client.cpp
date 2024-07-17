@@ -1,25 +1,32 @@
 ﻿#include <winsock2.h>
 #include <ws2tcpip.h>
+#include <filesystem>
 #include <iostream>
-
+#include <fstream>
+#include <cstring>
+#include <string>
+#include "fileService.h"
+using namespace std;
 #pragma comment(lib, "ws2_32.lib")
 
-int main() {
+int main()
+{
     WSADATA wsaData;
     SOCKET clientSocket;
     sockaddr_in serverAddr;
-    char buffer[512];
 
     // Khởi tạo Winsock
-    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-        std::cerr << "WSAStartup failed" << std::endl;
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
+    {
+        cerr << "WSAStartup failed with error: " << WSAGetLastError() << endl;
         return 1;
     }
 
     // Tạo một socket
     clientSocket = socket(AF_INET, SOCK_STREAM, 0);
-    if (clientSocket == INVALID_SOCKET) {
-        std::cerr << "Socket creation failed" << std::endl;
+    if (clientSocket == INVALID_SOCKET)
+    {
+        cerr << "Socket creation failed with error: " << WSAGetLastError() << endl;
         WSACleanup();
         return 1;
     }
@@ -29,27 +36,27 @@ int main() {
     serverAddr.sin_port = htons(8080);
     inet_pton(AF_INET, "127.0.0.1", &serverAddr.sin_addr);
 
-    if (connect(clientSocket, (sockaddr*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR) {
-        std::cerr << "Connection failed" << std::endl;
+    if (connect(clientSocket, (sockaddr*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR)
+    {
+        cerr << "Connection failed with error: " << WSAGetLastError() << endl;
         closesocket(clientSocket);
         WSACleanup();
         return 1;
     }
 
-    std::cout << "Connected to server!" << std::endl;
+    cout << "Connected to server!" << endl;
 
-    // Gửi và nhận dữ liệu
-    const char* dataToSend = "Hello, Server!";
-    send(clientSocket, dataToSend, strlen(dataToSend), 0);
-
-    int bytesReceived = recv(clientSocket, buffer, sizeof(buffer), 0);
-    if (bytesReceived > 0) {
-        std::cout << "Received: " << std::string(buffer, 0, bytesReceived) << std::endl;
+    FileService fileService;
+    fileService.receiveFileArr(clientSocket);
+    for (File file : fileService.getFileArr())
+    {
+        cout << "File name: " << file.getName() << endl;
+        cout << "File size: " << file.getSize() << " bytes" << endl;
     }
 
     // Ngắt kết nối
     closesocket(clientSocket);
     WSACleanup();
-
+    system("pause");
     return 0;
 }
