@@ -1,25 +1,13 @@
-﻿#include <winsock2.h>
-#include <ws2tcpip.h>
-#include <filesystem>
-#include <iostream>
-#include <fstream>
-#include <cstring>
-#include <string>
-#include "fileService.h"
-using namespace std;
-#pragma comment(lib, "ws2_32.lib")
+﻿#include "client.h"
 
-int main()
+Client::Client()
 {
-    WSADATA wsaData;
-    SOCKET clientSocket;
-    sockaddr_in serverAddr;
-
     // Khởi tạo Winsock
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
     {
         cerr << "WSAStartup failed with error: " << WSAGetLastError() << endl;
-        return 1;
+
+        exit(-1);
     }
 
     // Tạo một socket
@@ -28,7 +16,7 @@ int main()
     {
         cerr << "Socket creation failed with error: " << WSAGetLastError() << endl;
         WSACleanup();
-        return 1;
+        exit(-1);
     }
 
     // Kết nối tới server
@@ -41,11 +29,12 @@ int main()
         cerr << "Connection failed with error: " << WSAGetLastError() << endl;
         closesocket(clientSocket);
         WSACleanup();
-        return 1;
+        exit(-1);
     }
-
     cout << "Connected to server!" << endl;
-
+}
+void Client::run()
+{
     FileService fileService;
     fileService.receiveFileArr(clientSocket);
     for (File file : fileService.getFileArr())
@@ -53,10 +42,11 @@ int main()
         cout << "File name: " << file.getName() << endl;
         cout << "File size: " << file.getSize() << " bytes" << endl;
     }
-
+}
+Client::~Client()
+{
     // Ngắt kết nối
     closesocket(clientSocket);
     WSACleanup();
     system("pause");
-    return 0;
 }

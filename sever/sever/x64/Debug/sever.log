@@ -1,2 +1,10 @@
-﻿  main.cpp
-  sever.vcxproj -> D:\coding\socketProject\vsSocketProject\vsSocketProject\sever\x64\Debug\sever.exe
+﻿  file.cpp
+C:\Users\pc\Downloads\vsSocketProject\sever\sever\file.cpp(38,18): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  fileService.cpp
+C:\Users\pc\Downloads\vsSocketProject\sever\sever\fileService.cpp(13,19): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  main.cpp
+  sever.cpp
+C:\Users\pc\Downloads\vsSocketProject\sever\sever\sever.cpp(59,10): warning C4101: 'recvbuf': unreferenced local variable
+  Generating Code...
+  LINK : C:\Users\pc\Downloads\vsSocketProject\sever\x64\Debug\sever.exe not found or not built by the last incremental link; performing full link
+  sever.vcxproj -> C:\Users\pc\Downloads\vsSocketProject\sever\x64\Debug\sever.exe

@@ -1,3 +1,2 @@
-﻿  fileService.cpp
-D:\coding\socketProject\vsSocketProject\vsSocketProject\client\client\fileService.cpp(13,19): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-  client.vcxproj -> D:\coding\socketProject\vsSocketProject\vsSocketProject\client\x64\Debug\client.exe
+﻿  client.cpp
+  client.vcxproj -> C:\Users\pc\Downloads\vsSocketProject\client\x64\Debug\client.exe
