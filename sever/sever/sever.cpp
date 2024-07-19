@@ -22,7 +22,7 @@ Sever::Sever()
     // Gán địa chỉ cho socket
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_addr.s_addr = INADDR_ANY;
-    serverAddr.sin_port = htons(8080);
+    serverAddr.sin_port = htons(3605);
 
     if (bind(serverSocket, (sockaddr*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR)
     {
@@ -56,14 +56,16 @@ Sever ::~Sever()
 
 void HandleClient(SOCKET ClientSocket)
 {
-    char recvbuf[DEFAULT_BUFLEN];
-    int recvbuflen = DEFAULT_BUFLEN;
     int iResult;
 
     // do something
     FileService fileService;
     fileService.setFileArr();
     fileService.sendFileArr(ClientSocket);
+
+
+
+
     // Shutdown the connection since we're done
     iResult = shutdown(ClientSocket, SD_SEND);
     if (iResult == SOCKET_ERROR)
