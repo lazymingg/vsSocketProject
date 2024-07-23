@@ -36,7 +36,7 @@ char* FileService::serializeFileArr(int& buffer_size)
     return buffer;
 }
 
-vector<File> FileService::getFileArr()
+vector<File>& FileService::getFileArr()
 {
     return this->fileArr;
 }

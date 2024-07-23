@@ -24,12 +24,14 @@ private:
 public:
     FileService();
     ~FileService();
+    
     void setFileArr();
-    void sendFileArr(SOCKET clientSocket);
-    char* serializeFileArr(int& buffer_size);
-    void receiveFileArr(SOCKET serverSocket);
-    vector<File> deserializeFileArr(char* buffer, int buffer_size);
-    vector<File> getFileArr();
+    vector<File>& getFileArr();
 
+    vector<File> deserializeFileArr(char* buffer, int buffer_size);
+    char* serializeFileArr(int& buffer_size);
+
+    void sendFileArr(SOCKET clientSocket);
+    void receiveFileArr(SOCKET serverSocket);
 };
 #endif // FILESERVICE_H
