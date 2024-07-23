@@ -2,3 +2,91 @@
 # sever/sever/file/*
 
 # !sever/sever/file/*
+
+# General
+.DS_Store
+Thumbs.db
+
+# Ignore node_modules for Node.js projects (if any)
+**/node_modules/
+
+# Ignore log files
+**/*.log
+
+# Ignore MacOS system files
+**/.DS_Store
+
+# Visual Studio (applies to client and server folders)
+**/.vs/
+**/*.exe
+**/*.dll
+**/*.pdb
+**/*.cache
+**/*.ilk
+**/*.log
+**/*.obj
+**/*.lib
+**/*.tmp
+**/*.user
+**/*.userosscache
+**/*.suo
+**/*.unsuccessfulbuild
+**/*.ipch
+**/*.aps
+**/*.ncb
+**/*.opendb
+**/*.tlog
+**/*.lastcodeanalysissucceeded
+**/*.vcxproj.user
+**/*.vcxproj.filters
+**/*.vcxproj.*
+**/*.sln*
+**/*.suo
+**/*.sdf
+**/*.opensdf
+**/*.log
+**/*.tlog
+**/*.lastbuildstate
+**/x64/
+**/x86/
+**/[Bb]uild*/
+**/[Dd]ebug*/
+**/[Rr]elease*/
+**/[Aa][Rr][Mm]*/
+**/ARM64/
+**/ipch/
+
+# CMake
+**/CMakeLists.txt.user
+**/CMakeCache.txt
+**/CMakeFiles/
+**/Testing/
+**/Makefile
+**/cmake_install.cmake
+**/install_manifest.txt
+**/compile_commands.json
+
+# JetBrains Rider
+**/.idea/
+**/*.sln.iml
+
+# Publish directory
+**/[Pp]ublish*/
+
+# MSTest test Results
+**/[Tt]est[Rr]esult*/
+
+# NUGET Packages
+**/*.nupkg
+**/*.snupkg
+**/.nuget/
+**/packages/
+**/project.lock.json
+**/project.fragment.lock.json
+**/artifacts/
+
+# Windows Installer files
+**/*.cab
+**/*.msi
+**/*.msm
+**/*.msp

@@ -1,9 +1,0 @@
-﻿  file.cpp
-D:\coding\vsSocketProject\sever\sever\file.cpp(38,18): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-  fileService.cpp
-D:\coding\vsSocketProject\sever\sever\fileService.cpp(13,19): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-  main.cpp
-  sever.cpp
-  Generating Code...
-  LINK : D:\coding\vsSocketProject\sever\x64\Debug\sever.exe not found or not built by the last incremental link; performing full link
-  sever.vcxproj -> D:\coding\vsSocketProject\sever\x64\Debug\sever.exe
