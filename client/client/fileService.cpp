@@ -40,21 +40,21 @@ vector<File>& FileService::getFileArr()
 {
     return this->fileArr;
 }
-
 void FileService::sendFileArr(SOCKET clientSocket)
 {
+    int byteSend = 0;
     int buffer_size = 0;
     char* buffer = serializeFileArr(buffer_size);
 
     // Send buffer size first
-    send(clientSocket, (char*)&buffer_size, sizeof(buffer_size), 0);
+    byteSend += send(clientSocket, (char*)&buffer_size, sizeof(buffer_size), 0);
 
     // Send the actual buffer
-    send(clientSocket, buffer, buffer_size, 0);
+    byteSend += send(clientSocket, buffer, buffer_size, 0);
 
     delete[] buffer; // Free memory allocated for buffer
+    // cout << "byte send " << byteSend << endl;
 }
-
 void FileService::receiveFileArr(SOCKET serverSocket)
 {
     int buffer_size;
@@ -88,7 +88,6 @@ std::vector<File> FileService::deserializeFileArr(char* buffer, int buffer_size)
     return files;
 }
 
-
 void FileService::setFileArr()
 {
     std::string path = "./file";
@@ -115,4 +114,38 @@ void FileService::setFileArr()
         std::cerr << "Error: " << ex.what() << std::endl;
     }
     return;
+}
+void FileService::readUserInput(string fileName)
+{
+    fileArr.resize(0);
+    fstream fi;
+    fi.open(fileName.c_str(), ios::in);
+    if (!fi.is_open())
+    {
+        cout << " Can not open file ";
+        return;
+    }
+    string line;
+    File file;
+    while (getline(fi, line))
+    {
+        stringstream ss(line);
+        string s;
+        ss >> s;
+        file.setName(s);
+        ss >> s;
+        if (s == "LOW")
+            file.setPriority(FileDowloadPriority::LOW);
+        else if (s == "NORMAL")
+            file.setPriority(FileDowloadPriority::NORMAL);
+        else if (s == "HIGH")
+            file.setPriority(FileDowloadPriority::HIGH);
+        else if (s == "CRITICAL")
+            file.setPriority(FileDowloadPriority::CRITICAL);
+        else
+            file.setPriority(FileDowloadPriority::NONE);
+
+        fileArr.push_back(file);
+    }
+    fi.close();
 }

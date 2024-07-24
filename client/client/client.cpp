@@ -21,7 +21,7 @@ Client::Client()
 
     // Kết nối tới server
     serverAddr.sin_family = AF_INET;
-    serverAddr.sin_port = htons(3605);
+    serverAddr.sin_port = htons(8080);
     inet_pton(AF_INET, "127.0.0.1", &serverAddr.sin_addr);
 
     if (connect(clientSocket, (sockaddr*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR)
@@ -35,15 +35,10 @@ Client::Client()
 }
 void Client::run()
 {
-    FileService fileService;
-    fileService.receiveFileArr(clientSocket);
-
-    for (File file : fileService.getFileArr())
-    {
-        cout << "File name: " << file.getName() << endl;
-        cout << "File size: " << file.getSize() << " bytes" << endl;
-    }
+    Controller controller(clientSocket);
+    controller.run();
 }
+
 Client::~Client()
 {
     // Ngắt kết nối

@@ -27,6 +27,9 @@
     <ClCompile Include="client.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="controller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="file.h">
@@ -36,6 +39,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="client.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="controller.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

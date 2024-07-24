@@ -132,12 +132,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="client.cpp" />
+    <ClCompile Include="controller.cpp" />
     <ClCompile Include="file.cpp" />
     <ClCompile Include="fileService.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client.h" />
+    <ClInclude Include="controller.h" />
     <ClInclude Include="file.h" />
     <ClInclude Include="fileService.h" />
   </ItemGroup>

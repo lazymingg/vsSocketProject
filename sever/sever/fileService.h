@@ -12,7 +12,8 @@
 #pragma comment(lib, "ws2_32.lib")
 #include "file.h"
 #include <vector>
-
+#include <string>
+#include <sstream>
 namespace fs = std::filesystem;
 using namespace std;
 
@@ -21,17 +22,20 @@ class FileService
 {
 private:
     vector<File> fileArr;
+
 public:
     FileService();
     ~FileService();
-    
+
     void setFileArr();
     vector<File>& getFileArr();
 
-    vector<File> deserializeFileArr(char* buffer, int buffer_size);
-    char* serializeFileArr(int& buffer_size);
-
     void sendFileArr(SOCKET clientSocket);
     void receiveFileArr(SOCKET serverSocket);
+
+    char* serializeFileArr(int& buffer_size);
+    vector<File> deserializeFileArr(char* buffer, int buffer_size);
+
+    void readUserInput(string fileName);
 };
 #endif // FILESERVICE_H

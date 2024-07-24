@@ -26,7 +26,7 @@ private:
     string name = "";
     int64_t size = 0;
     FileDowloadPriority priority = FileDowloadPriority::NONE;
-
+    int dowloadProcess = 0;
 public:
     string getName();
 
@@ -34,11 +34,13 @@ public:
 
     FileDowloadPriority getPriority();
 
+    void setPriority(FileDowloadPriority priority);
+
+    string getPriorityString();
+
     void setName(string name);
 
     void setSize(int64_t size);
-
-    void setPriority(FileDowloadPriority priority);
 
     char* serialize(int& buffer_size);
 

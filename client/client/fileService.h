@@ -11,8 +11,10 @@
 #include <ws2tcpip.h>
 #pragma comment(lib, "ws2_32.lib")
 #include "file.h"
+#include "controller.h"
 #include <vector>
-
+#include <string>
+#include <sstream>
 namespace fs = std::filesystem;
 using namespace std;
 
@@ -28,10 +30,12 @@ public:
     void setFileArr();
     vector<File>& getFileArr();
 
-    vector<File> deserializeFileArr(char* buffer, int buffer_size);
-    char* serializeFileArr(int& buffer_size);
-
     void sendFileArr(SOCKET clientSocket);
     void receiveFileArr(SOCKET serverSocket);
+
+    char* serializeFileArr(int& buffer_size);
+    vector<File> deserializeFileArr(char* buffer, int buffer_size);
+
+    void readUserInput(string fileName);
 };
 #endif // FILESERVICE_H

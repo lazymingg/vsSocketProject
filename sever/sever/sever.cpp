@@ -1,6 +1,8 @@
 ﻿#include "sever.h"
+#include <mutex>
 
 using namespace std;
+using namespace chrono;
 Sever::Sever()
 {
     // Khởi tạo Winsock
@@ -22,7 +24,7 @@ Sever::Sever()
     // Gán địa chỉ cho socket
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_addr.s_addr = INADDR_ANY;
-    serverAddr.sin_port = htons(3605);
+    serverAddr.sin_port = htons(8080);
 
     if (bind(serverSocket, (sockaddr*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR)
     {
@@ -58,14 +60,8 @@ void HandleClient(SOCKET ClientSocket)
 {
     int iResult;
 
-    // do something
-    FileService fileService;
-    fileService.setFileArr();
-    fileService.sendFileArr(ClientSocket);
-
-
-
-
+    Controller controller(ClientSocket);
+    controller.run();
     // Shutdown the connection since we're done
     iResult = shutdown(ClientSocket, SD_SEND);
     if (iResult == SOCKET_ERROR)
@@ -78,10 +74,12 @@ void HandleClient(SOCKET ClientSocket)
     // Cleanup
     closesocket(ClientSocket);
 }
+
+
 void Sever::run()
 {
-    std::vector<std::thread> clientThreads;
-    std::mutex clientThreadsMutex;
+    vector<thread> clientThreads;
+    mutex clientThreadsMutex;
 
     while (true)
     {
@@ -94,9 +92,9 @@ void Sever::run()
             exit(1);
         }
 
-        std::cout << "Client connected" << std::endl;
+        cout << "Client connected" << endl;
 
-        std::lock_guard<std::mutex> lock(clientThreadsMutex);
-        clientThreads.push_back(std::thread(HandleClient, clientSocket));
+        lock_guard<mutex> lock(clientThreadsMutex);
+        clientThreads.push_back(thread(HandleClient, clientSocket));
     }
 }

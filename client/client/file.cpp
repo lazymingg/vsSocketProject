@@ -79,3 +79,20 @@ void File::deserialize(char* buffer)
     this->size = size;
     this->priority = priority;
 }
+
+string File::getPriorityString()
+{
+    switch (this->priority)
+    {
+    case FileDowloadPriority::LOW:
+        return "LOW";
+    case FileDowloadPriority::NORMAL:
+        return "NORMAL";
+    case FileDowloadPriority::HIGH:
+        return "HIGH";
+    case FileDowloadPriority::CRITICAL:
+        return "CRITICAL";
+    default:
+        return "NONE";
+    }
+}

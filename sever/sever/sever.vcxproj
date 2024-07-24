@@ -128,12 +128,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="controller.cpp" />
     <ClCompile Include="file.cpp" />
     <ClCompile Include="fileService.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="sever.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="controller.h" />
     <ClInclude Include="file.h" />
     <ClInclude Include="fileService.h" />
     <ClInclude Include="sever.h" />
