@@ -1,4 +1,4 @@
-#include "controller.h"
+﻿#include "controller.h"
 
 Controller::Controller(SOCKET socket)
 {
@@ -107,4 +107,114 @@ void Controller::updateFileQueue(FileService requestFile)
             this->fileQueue.push_back(fileProcess);
         }
     }
+}
+
+char* Controller::readData(FileProcess fileProcess, int& dataSize){
+    fstream fi;
+    string fileName = fileProcess.getName();
+    fi.open(fileName.c_str(), ios::in | ios::binary);
+    if (fi.fail())
+        return NULL;
+
+    // tính kích thước file
+    fi.seekg(0, ios::end);
+    int file_size = fi.tellg();
+
+    // Lấy dữ dataSize của gói tin thứ " process"
+    int process = fileProcess.process;
+    if ((process + 1) * 512 >= file_size) {
+        dataSize = file_size - process * 512;
+        if (dataSize >= 512)
+            dataSize = 0;
+    }
+    else
+        dataSize = 512;
+
+    char* data = new char[dataSize];
+
+    fi.seekg(process * 512, ios::beg);
+    fi.read(data, dataSize);
+    fi.close();
+
+    return data;
+}
+
+char* Controller::serializeData(FileProcess fileProcess, int& bufferSize) {
+
+    string fileName = fileProcess.getName();
+    int fileNameLength = fileName.size();
+    int process = fileProcess.process;
+    int dataSize;
+
+    // Lấy data và dataSize
+    char* data = readData(fileProcess, dataSize);
+
+    bufferSize = sizeof(fileNameLength) + fileNameLength + sizeof(process)
+                + sizeof(dataSize) + dataSize;
+
+    char* buffer = new char[bufferSize];
+    int offset = 0;
+
+    // lưu độ dài fileName
+    memcpy(buffer + offset, &fileNameLength, sizeof(fileNameLength));
+    offset += sizeof(fileNameLength);
+
+    // lưu fileName
+    memcpy(buffer + offset, fileName.c_str(), fileNameLength);
+    offset += fileNameLength;
+
+    // Lưu biến process
+    memcpy(buffer + offset, &process, sizeof(process));
+    offset += sizeof(process);
+
+    // Lưu dataSize
+    memcpy(buffer + offset, &dataSize, sizeof(dataSize));
+    offset += sizeof(dataSize);
+
+    // Lưu Data
+    memcpy(buffer + offset, data, dataSize);
+
+    return buffer;
+}
+
+
+void  Controller::deserializeData(char* bufferData){
+
+    int offset = 0;
+
+    // Lấy độ dài fileName
+    int fileNameLength;
+    memcpy(&fileNameLength, bufferData, sizeof(fileNameLength));
+
+    // Lấy fileName
+    offset += sizeof(fileNameLength);
+    char* fileName = new char[fileNameLength];
+    memcpy(fileName, bufferData + offset, fileNameLength);
+
+    // Mở file và ghi dữ liệu vào cuối file
+
+    ofstream fo;
+    fo.open(fileName, ios::binary | ios::app);
+    if (fo.fail()) {
+        delete[] fileName;
+        return;
+    }
+
+    offset += fileNameLength;
+    int process;
+    memcpy(&process, bufferData + offset, sizeof(process));
+
+    offset += sizeof(process);
+    int dataSize;
+    memcpy(&dataSize, bufferData + offset, sizeof(dataSize));
+
+    offset += sizeof(dataSize);
+    char* data = new char[dataSize];
+    memcpy(data, bufferData + offset, dataSize);
+
+    fo.write(data, dataSize);
+    fo.close();
+
+    delete[] fileName;
+    delete[] data;
 }

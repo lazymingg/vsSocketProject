@@ -45,6 +45,9 @@ public:
     ~Controller();
     void run();
     void updateFileQueue(FileService requestFile);
+    char* readData(FileProcess fileProcess, int& dataSize);
+    char* serializeData(FileProcess fileProcess, int& bufferSize);
+    void deserializeData(char* bufferData);
 private:
     vector<FileProcess> fileQueue;
     SOCKET socket;
