@@ -55,19 +55,29 @@ void FileService::sendFileArr(SOCKET clientSocket)
     delete[] buffer; // Free memory allocated for buffer
     // cout << "byte send " << byteSend << endl;
 }
-void FileService::receiveFileArr(SOCKET serverSocket)
+bool FileService::receiveFileArr(SOCKET serverSocket)
 {
     int buffer_size;
     char* buffer = new char[sizeof(buffer_size)];
 
     // Receive the buffer size first
-    recv(serverSocket, buffer, sizeof(buffer_size), 0);
+    if (recv(serverSocket, buffer, sizeof(buffer_size), 0) ==  0)
+	{
+		cout << "Client disconnected" << endl;
+        return false;
+	}
     std::memcpy(&buffer_size, buffer, sizeof(buffer_size));
     delete[] buffer;
 
     buffer = new char[buffer_size];
-    recv(serverSocket, buffer, buffer_size, 0);
+    if (recv(serverSocket, buffer, buffer_size, 0) ==  0)
+        {
+        cout << "Client disconnected" << endl;
+        return false;
+		}
     this->fileArr = deserializeFileArr(buffer, buffer_size);
+    delete[] buffer;
+    return true;
 }
 std::vector<File> FileService::deserializeFileArr(char* buffer, int buffer_size)
 {

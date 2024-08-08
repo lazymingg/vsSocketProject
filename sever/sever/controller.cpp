@@ -7,6 +7,24 @@ Controller::Controller(SOCKET socket)
 Controller::~Controller()
 {
 }
+bool checkClientShutdown(int recvCode)
+{
+    if (recvCode == SOCKET_ERROR)
+    {
+        int errorCode = WSAGetLastError();
+        if (errorCode == WSAECONNRESET) {
+            return false;
+        }
+        else if (errorCode == WSAENOTCONN) {
+            return false;
+        }
+        else {
+            return false;
+        }
+        // Xử lý lỗi hoặc dọn dẹp tài nguyên
+    }
+    return true;
+}
 void Controller::run()
 {
     //  create file service
@@ -28,7 +46,7 @@ void Controller::run()
     // loop to send file to client
 
     bool theFirst = true;
-
+   
     while (!stop)
     {
         auto now = steady_clock::now();
@@ -38,7 +56,13 @@ void Controller::run()
             // system("cls");
             // send flag to client to notify that now the sever will send the file to the client
             bool flag = true;
-            send(socket, (char*)&flag, sizeof(flag), 0);
+            int byteSend = send(socket, (char*)&flag, sizeof(flag), 0);
+            if (!checkClientShutdown(byteSend))
+            {
+                cout << "client disconnected" << endl;
+                stop = true;
+                break;
+            }
             if (currentFile == maxFile)
             {
                 fileDownloadQueue = createDowloadLine();
@@ -49,10 +73,21 @@ void Controller::run()
             int bufferSize = 0;
             char* buffer = getDataChunk(fileDownloadQueue[currentFile], bufferSize);
             // send the buffer size to client
-            send(socket, (char*)&bufferSize, sizeof(bufferSize), 0);
+            byteSend = send(socket, (char*)&bufferSize, sizeof(bufferSize), 0);
+            if (!checkClientShutdown(byteSend))
+            {
+                cout << "client disconnected" << endl;
+                stop = true;
+                break;
+            }
             // send the buffer to
-            send(socket, buffer, bufferSize, 0);
-
+            byteSend = send(socket, buffer, bufferSize, 0);
+            if (!checkClientShutdown(byteSend))
+            {
+                cout << "client disconnected" << endl;
+                stop = true;
+                break;
+            }
             currentFile++;
             if (currentFile == maxFile)
             {
@@ -69,11 +104,21 @@ void Controller::run()
         {
             // sennd flag to client to notify that the client need to send the file array to sever again
             bool flag = false;
-            send(socket, (char*)&flag, sizeof(flag), 0);
-
+            int byteSend = send(socket, (char*)&flag, sizeof(flag), 0);
+            if (!checkClientShutdown(byteSend))
+            {
+				cout << "client disconnected" << endl;
+				stop = true;
+				break;
+			}
             FileService requestFile;
             // recv the file array from client
-            requestFile.receiveFileArr(socket);
+            if (!requestFile.receiveFileArr(socket))
+            {
+                cout << "client disconnected" << endl;
+                stop = true;
+				break;
+            }
             // update the queue dowload file
             updateFileQueue(requestFile);
             // tesing the file queue
@@ -86,6 +131,7 @@ void Controller::run()
         {
             cout << "all file have been sent to the client" << endl;
             stop = true;
+            break;
         }
         // check if all the file have been sent to the client
 

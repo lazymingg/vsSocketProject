@@ -31,7 +31,7 @@ public:
     vector<File>& getFileArr();
 
     void sendFileArr(SOCKET clientSocket);
-    void receiveFileArr(SOCKET serverSocket);
+    bool receiveFileArr(SOCKET serverSocket);
 
     char* serializeFileArr(int& buffer_size);
     vector<File> deserializeFileArr(char* buffer, int buffer_size);

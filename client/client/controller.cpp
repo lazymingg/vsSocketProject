@@ -8,6 +8,7 @@ Controller::Controller(SOCKET socket)
 }
 Controller::~Controller()
 {
+
 }
 void Controller::updateFileQueue(FileService fileService)
 {
@@ -46,12 +47,32 @@ FileService Controller::getRequestFile()
     return requestFile;
 }
 
+void signalHandler(int signum, bool &stop)
+{
+	cout << "Interrupt signal (" << signum << ") received.\n";
+    // close the socket
+    stop = true;
+	exit(signum);
+}
+
 void Controller::run()
 {
     // do something
     FileService fileService;
     fileService.receiveFileArr(socket);
+    cout << "===================================================" << endl;
+    cout << "Here is the file from server: \n";
+    for (File file : fileService.getFileArr())
+    {
+        cout << "File name: " << file.getName() << endl;
+        cout << "File size: " << file.getSize() << endl;
+    }
+    cout << "===================================================" << endl;
+    std::cout << "plz modify ur input.txt before we continue press Enter to continue..." << std::endl;
+    std::cin.get();
+
     updateFileQueue(fileService);
+    // print file from server
 
     bool flag = true;
 

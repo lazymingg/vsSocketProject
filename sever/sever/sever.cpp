@@ -62,6 +62,16 @@ void HandleClient(SOCKET ClientSocket)
 
     Controller controller(ClientSocket);
     controller.run();
+
+
+    // check if the client has shut down the connection
+    iResult = recv(ClientSocket, (char*)&iResult, sizeof(iResult), 0);
+    if (iResult == 0)
+	{
+		std::cerr << "Connection closed by client" << std::endl;
+		closesocket(ClientSocket);
+		return;
+	}
     // Shutdown the connection since we're done
     iResult = shutdown(ClientSocket, SD_SEND);
     if (iResult == SOCKET_ERROR)
@@ -83,6 +93,7 @@ void Sever::run()
 
     while (true)
     {
+        cout << "Waiting for client to connect..." << endl;
         clientSocket = accept(serverSocket, (sockaddr*)&clientAddr, &clientAddrSize);
         if (clientSocket == INVALID_SOCKET)
         {
@@ -96,5 +107,6 @@ void Sever::run()
 
         lock_guard<mutex> lock(clientThreadsMutex);
         clientThreads.push_back(thread(HandleClient, clientSocket));
+        cout << "waiting for client to connect..." << endl;
     }
 }
