@@ -8,6 +8,10 @@
 #include <thread>
 #include <chrono>
 #include "fileService.h"
+#include <iomanip> // For std::setw
+#include <atomic>
+#include <mutex>
+#include <condition_variable>
 using namespace std;
 using namespace chrono;
 // Include any necessary libraries or headers here
@@ -15,12 +19,50 @@ struct FileProcess
 {
     File file;
     int process = 0;
-
+    int currentProcess = 0;
+    bool needTobeDownload = false;
+    bool downloaded = false;
     FileProcess(File file, int process)
     {
         this->file = file;
         this->process = process;
+        this->currentProcess = process;
     }
+    //getters
+    File& getFile()
+    {
+        return file;
+    }
+    int getProcess()
+    {
+        return process;
+    }
+    int getCurrentProcess()
+    {
+        return currentProcess;
+    }
+    bool getNeedTobeDownload()
+    {
+        return needTobeDownload;
+    }
+    //setters
+    void setNeedTobeDownload(bool needTobeDownload)
+    {
+        this->needTobeDownload = needTobeDownload;
+    }
+    void setFile(File file)
+    {
+        this->file = file;
+    }
+    void setProcess(int process)
+    {
+        this->process = process;
+    }
+    void setCurrentProcess(int currentProcess)
+    {
+        this->currentProcess = currentProcess;
+    }
+
 
 };
 
@@ -30,11 +72,24 @@ public:
     Controller(SOCKET socket);
     ~Controller();
     void run();
+    std::atomic<float> progress;
+    std::atomic<bool> done;
 private:
-    queue<File> fileQueue;
+    vector<FileProcess> fileQueue;
     SOCKET socket;
+    FileService fileNotExist;
+
+
+    FileService getRequestFile();
+    void deserializeData(char* bufferData);
+    void updateFileQueue(FileService fileService);
+    void updateDownloadQueue(FileService userRequest);
+    FileService ConvertFileQueueToFileService();
+    void updateDowloadProcess(string fileName);
+    bool checkStopCondition();
+    void printProgressBar();
+    void printProgressBarLastTime();
     // Declare any private member variables or functions here
 };
-// Declare your class or function prototypes here
 
 #endif // CONTROLLER_H

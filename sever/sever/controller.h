@@ -20,6 +20,15 @@ struct FileProcess
 {
     File file;
     int process = 0;
+    int maxProcess = 0;
+    bool isDone = false;
+
+
+    FileProcess()
+    {
+        this->file = File();
+        this->process = 0;
+    }
 
     FileProcess(File file, int process)
     {
@@ -36,6 +45,17 @@ struct FileProcess
     {
         return file;
     }
+    void updateMaxProcess()
+    {
+        if (this->file.getSize() % 512 == 0)
+        {
+            this->maxProcess = this->file.getSize() / 512;
+        }
+        else
+        {
+            this->maxProcess = this->file.getSize() / 512 + 1;
+        }
+    }
 };
 
 class Controller
@@ -47,7 +67,12 @@ public:
     void updateFileQueue(FileService requestFile);
     char* readData(FileProcess fileProcess, int& dataSize);
     char* serializeData(FileProcess fileProcess, int& bufferSize);
+    void sendFileData();
     void deserializeData(char* bufferData);
+    int downloadSpeed(FileProcess fileProcess);
+    char* getDataChunk(FileProcess& fileProcess, int& bufferSize);
+    vector<FileProcess> createDowloadLine();
+    bool isAllFileDone();
 private:
     vector<FileProcess> fileQueue;
     SOCKET socket;

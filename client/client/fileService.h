@@ -11,7 +11,6 @@
 #include <ws2tcpip.h>
 #pragma comment(lib, "ws2_32.lib")
 #include "file.h"
-#include "controller.h"
 #include <vector>
 #include <string>
 #include <sstream>

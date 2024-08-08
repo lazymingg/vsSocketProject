@@ -1,3 +1,6 @@
-Ming.zip LOW
-DanAnh.zip HIGH
-Thu.zip CRITICAL
+fdafdsa.zip CRITICAL
+kfskf.zip HIGH
+fjdk.zip LOW
+minggne.zip LOW
+hello.zip CRITICAL
+5MB.zip CRITICAL

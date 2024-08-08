@@ -16,36 +16,57 @@ void Controller::run()
     // send file array to client
     fileService.sendFileArr(socket);
 
+    vector <FileProcess> fileDownloadQueue;
 
     auto start = steady_clock::now();
     auto next_action_time = start; //
     bool stop = false; // flag to stop the loop
+
+
+    int currentFile = 0;
+    int maxFile = 0;
+    // loop to send file to client
+
+    bool theFirst = true;
+
     while (!stop)
     {
         auto now = steady_clock::now();
 
-        if (duration_cast<seconds>(now - next_action_time).count() <= 2)
+        if (duration_cast<seconds>(now - next_action_time).count() <= 2 && !theFirst)
         {
             // system("cls");
             // send flag to client to notify that now the sever will send the file to the client
             bool flag = true;
             send(socket, (char*)&flag, sizeof(flag), 0);
-            // do the send file action base on current queue
+            if (currentFile == maxFile)
+            {
+                fileDownloadQueue = createDowloadLine();
+                maxFile = fileDownloadQueue.size();
+                currentFile = 0;
+            }
 
-            //update the queue dowload file
+            int bufferSize = 0;
+            char* buffer = getDataChunk(fileDownloadQueue[currentFile], bufferSize);
+            // send the buffer size to client
+            send(socket, (char*)&bufferSize, sizeof(bufferSize), 0);
+            // send the buffer to
+            send(socket, buffer, bufferSize, 0);
 
+            currentFile++;
+            if (currentFile == maxFile)
+            {
+                fileDownloadQueue = createDowloadLine();
+                maxFile = fileDownloadQueue.size();
+                currentFile = 0;
+            }
 
-            // send the file to client base on current queue download file and priority
+            delete[] buffer;
 
-
-            // update the queue dowload file
-
-
-            std::this_thread::sleep_for(milliseconds(1000)); // wait a bit to make sure not to call continuously
+            // std::this_thread::sleep_for(milliseconds(0)); // wait a bit to make sure not to call continuously
         }
         else
         {
-
             // sennd flag to client to notify that the client need to send the file array to sever again
             bool flag = false;
             send(socket, (char*)&flag, sizeof(flag), 0);
@@ -55,32 +76,92 @@ void Controller::run()
             requestFile.receiveFileArr(socket);
             // update the queue dowload file
             updateFileQueue(requestFile);
-
-            //testing: print the queue download file
-            //clear the screen
-            //ansi escape code to clear the screen
-            cout << "\033[2J\033[1;1H";
-            cout << "file queue" << endl;
-
-            for (int i = 0; i < fileQueue.size(); i++)
-            {
-                cout << "file " << i << endl;
-                cout << "file name " << fileQueue[i].getFile().getName() << endl;
-                cout << "file size" << fileQueue[i].getFile().getSize() << endl;
-                cout << "file priority" << fileQueue[i].getFile().getPriorityString() << endl;
-            }
+            // tesing the file queue
             next_action_time = steady_clock::now();
+            theFirst = false;
         }
 
         // stop condition
-        // if (duration_cast<seconds>(now - start).count() >= 10) {
-        //     stop = true;
-        // }
+        if (maxFile == 0 && isAllFileDone() && !theFirst)
+        {
+            cout << "all file have been sent to the client" << endl;
+            stop = true;
+        }
         // check if all the file have been sent to the client
 
     }
 }
+bool Controller::isAllFileDone()
+{
+    int size = fileQueue.size();
+    for (int i = 0; i < size; i++)
+    {
+        if (!fileQueue[i].isDone)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+vector<FileProcess> Controller::createDowloadLine()
+{
+    vector<FileProcess> fileDownloadQueue;
+    int size = fileQueue.size();
+    for (int i = 0; i < size; i++)
+    {
+        if (fileQueue[i].isDone)
+        {
+            continue;
+        }
+        for (int j = 0; j < downloadSpeed(fileQueue[i]); j++)
+        {
+            fileDownloadQueue.push_back(fileQueue[i]);
+            fileQueue[i].process++;
+            if (fileQueue[i].process == fileQueue[i].maxProcess)
+            {
+                fileQueue[i].isDone = true;
+                break;
+            }
+        }
+    }
+    return fileDownloadQueue;
+}
+// send file for client 
+char* Controller::getDataChunk(FileProcess& fileProcess, int& buffer_size)
+{
+    if (fileProcess.isDone)
+    {
+        return NULL;
+    }
+    int bufferSize = 0;
+    char* buffer = serializeData(fileProcess, bufferSize);
+    buffer_size = bufferSize;
 
+    fileProcess.process++;
+    if (fileProcess.process == fileProcess.maxProcess)
+    {
+        fileProcess.isDone = true;
+    }
+    return buffer;
+}
+
+//dowload speed
+int Controller::downloadSpeed(FileProcess fileProcess)
+{
+    switch (fileProcess.getFile().getPriority())
+    {
+    case FileDowloadPriority::LOW:
+        return 1;
+    case FileDowloadPriority::NORMAL:
+        return 5;
+    case FileDowloadPriority::HIGH:
+        return 15;
+    case FileDowloadPriority::CRITICAL:
+        return 50;
+    default:
+        return 0;
+    }
+}
 void Controller::updateFileQueue(FileService requestFile)
 {
     // update the queue download file
@@ -105,40 +186,52 @@ void Controller::updateFileQueue(FileService requestFile)
             // add the file to the queue
             FileProcess fileProcess(requestFile.getFileArr()[i], 0);
             this->fileQueue.push_back(fileProcess);
+            sizeQueue++;
         }
+    }
+    //update the process of the file in the queue
+    for (int i = 0; i < sizeQueue; i++)
+    {
+        this->fileQueue[i].updateMaxProcess();
     }
 }
 
-char* Controller::readData(FileProcess fileProcess, int& dataSize){
+char* Controller::readData(FileProcess fileProcess, int& dataSize) {
     fstream fi;
     string fileName = fileProcess.getName();
-    fi.open(fileName.c_str(), ios::in | ios::binary);
-    if (fi.fail())
-        return NULL;
+    // Path to file
+    string path = "./file/" + fileName;
+    fi.open(path.c_str(), ios::in | ios::binary);
+    if (fi.fail()) {
+        dataSize = 0;
+        return nullptr;
+    }
 
-    // tính kích thước file
+    // Calculate file size
     fi.seekg(0, ios::end);
     int file_size = fi.tellg();
 
-    // Lấy dữ dataSize của gói tin thứ " process"
+    // Get dataSize of the packet "process"
     int process = fileProcess.process;
     if ((process + 1) * 512 >= file_size) {
         dataSize = file_size - process * 512;
-        if (dataSize >= 512)
+        if (dataSize <= 0) {
             dataSize = 0;
+            fi.close();
+            return nullptr;
+        }
     }
-    else
+    else {
         dataSize = 512;
+    }
 
     char* data = new char[dataSize];
-
     fi.seekg(process * 512, ios::beg);
     fi.read(data, dataSize);
     fi.close();
 
     return data;
 }
-
 char* Controller::serializeData(FileProcess fileProcess, int& bufferSize) {
 
     string fileName = fileProcess.getName();
@@ -150,7 +243,7 @@ char* Controller::serializeData(FileProcess fileProcess, int& bufferSize) {
     char* data = readData(fileProcess, dataSize);
 
     bufferSize = sizeof(fileNameLength) + fileNameLength + sizeof(process)
-                + sizeof(dataSize) + dataSize;
+        + sizeof(dataSize) + dataSize;
 
     char* buffer = new char[bufferSize];
     int offset = 0;
@@ -178,7 +271,8 @@ char* Controller::serializeData(FileProcess fileProcess, int& bufferSize) {
 }
 
 
-void  Controller::deserializeData(char* bufferData){
+void  Controller::deserializeData(char* bufferData)
+{
 
     int offset = 0;
 
@@ -188,9 +282,11 @@ void  Controller::deserializeData(char* bufferData){
 
     // Lấy fileName
     offset += sizeof(fileNameLength);
-    char* fileName = new char[fileNameLength];
+    char* fileName = new char[fileNameLength + 1];
     memcpy(fileName, bufferData + offset, fileNameLength);
 
+    // add null-terminator
+    fileName[fileNameLength] = '\0';
     // Mở file và ghi dữ liệu vào cuối file
 
     ofstream fo;

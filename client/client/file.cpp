@@ -1,4 +1,4 @@
-#include "file.h"
+﻿#include "file.h"
 
 // Getter and Setter
 string File::getName()
