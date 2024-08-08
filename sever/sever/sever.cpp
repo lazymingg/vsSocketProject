@@ -93,7 +93,6 @@ void Sever::run()
 
     while (true)
     {
-        cout << "Waiting for client to connect..." << endl;
         clientSocket = accept(serverSocket, (sockaddr*)&clientAddr, &clientAddrSize);
         if (clientSocket == INVALID_SOCKET)
         {
@@ -107,6 +106,5 @@ void Sever::run()
 
         lock_guard<mutex> lock(clientThreadsMutex);
         clientThreads.push_back(thread(HandleClient, clientSocket));
-        cout << "waiting for client to connect..." << endl;
     }
 }
