@@ -266,7 +266,7 @@ char* Controller::serializeData(FileProcess fileProcess, int& bufferSize) {
 
     // Lưu Data
     memcpy(buffer + offset, data, dataSize);
-
+    delete[] data;
     return buffer;
 }
 
