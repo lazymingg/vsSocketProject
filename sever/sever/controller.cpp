@@ -159,10 +159,12 @@ vector<FileProcess> Controller::createDowloadLine()
         {
             continue;
         }
+
         for (int j = 0; j < downloadSpeed(fileQueue[i]); j++)
         {
             fileDownloadQueue.push_back(fileQueue[i]);
             fileQueue[i].process++;
+
             if (fileQueue[i].process == fileQueue[i].maxProcess)
             {
                 fileQueue[i].isDone = true;
@@ -183,11 +185,11 @@ char* Controller::getDataChunk(FileProcess& fileProcess, int& buffer_size)
     char* buffer = serializeData(fileProcess, bufferSize);
     buffer_size = bufferSize;
 
-    fileProcess.process++;
+    /*fileProcess.process++;
     if (fileProcess.process == fileProcess.maxProcess)
     {
         fileProcess.isDone = true;
-    }
+    }*/
     return buffer;
 }
 

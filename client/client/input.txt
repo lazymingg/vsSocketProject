@@ -3,5 +3,5 @@ kfskf.zip HIGH
 fjdk.zip LOW
 minggne.zip LOW
 hello.zip CRITICAL
-5MB.zip CRITICAL
-100MB.zip LOW
+5MB.zip LOW
+emiuuuuu.jpg CRITICAL
