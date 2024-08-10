@@ -64,10 +64,6 @@ void Controller::run()
 
 
             int bufferSize = 0;
-            for (int i = 0; i < fileQueue.size(); i++)
-            {
-                cout << "file name " << fileQueue[i].getName() << " process " << fileQueue[i].process << " max process " << fileQueue[i].maxProcess << " is done " << fileQueue[i].isDone << endl;
-            }
 
             char* buffer = getDataChunk(this->fileQueue, bufferSize);
             // send the buffer size to client
