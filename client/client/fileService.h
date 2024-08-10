@@ -11,6 +11,7 @@
 #include <ws2tcpip.h>
 #pragma comment(lib, "ws2_32.lib")
 #include "file.h"
+#include "utility.h"
 #include <vector>
 #include <string>
 #include <sstream>
@@ -22,6 +23,7 @@ class FileService
 {
 private:
     vector<File> fileArr;
+
 public:
     FileService();
     ~FileService();
@@ -31,6 +33,7 @@ public:
 
     void sendFileArr(SOCKET clientSocket);
     void receiveFileArr(SOCKET serverSocket);
+
 
     char* serializeFileArr(int& buffer_size);
     vector<File> deserializeFileArr(char* buffer, int buffer_size);

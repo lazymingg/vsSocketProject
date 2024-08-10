@@ -4,4 +4,5 @@ fjdk.zip LOW
 minggne.zip LOW
 hello.zip CRITICAL
 5MB.zip LOW
+10MB.zip LOW
 emiuuuuu.jpg CRITICAL

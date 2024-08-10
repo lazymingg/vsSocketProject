@@ -36,6 +36,9 @@ void Controller::updateDownloadQueue(FileService userRequest)
 }
 FileService Controller::getRequestFile()
 {
+
+
+
     FileService requestFile;
     for (FileProcess& fileProcess : fileQueue)
     {
@@ -47,12 +50,12 @@ FileService Controller::getRequestFile()
     return requestFile;
 }
 
-void signalHandler(int signum, bool &stop)
+void signalHandler(int signum, bool& stop)
 {
-	cout << "Interrupt signal (" << signum << ") received.\n";
+    cout << "Interrupt signal (" << signum << ") received.\n";
     // close the socket
     stop = true;
-	exit(signum);
+    exit(signum);
 }
 
 void Controller::run()
@@ -60,6 +63,8 @@ void Controller::run()
     // do something
     FileService fileService;
     fileService.receiveFileArr(socket);
+    updateFileQueue(fileService);
+
     cout << "===================================================" << endl;
     cout << "Here is the file from server: \n";
     for (File file : fileService.getFileArr())
@@ -70,8 +75,6 @@ void Controller::run()
     cout << "===================================================" << endl;
     std::cout << "plz modify ur input.txt before we continue press Enter to continue..." << std::endl;
     std::cin.get();
-
-    updateFileQueue(fileService);
     // print file from server
 
     bool flag = true;
@@ -80,29 +83,26 @@ void Controller::run()
 
     while (true)
     {
-
-        // print the progress bar
-        int byte = recv(socket, (char*)&flag, sizeof(flag), 0);
+        recv(socket, (char*)&flag, sizeof(flag), 0);
         if (flag)
         {
             int buffer_size;
-            recv(socket, (char*)&buffer_size, sizeof(buffer_size), 0);
+            recvNumber(socket, buffer_size);
             char* buffer = new char[buffer_size];
-            int a = recv(socket, buffer, buffer_size, 0);
+            recv(socket, buffer, buffer_size, 0);
             deserializeData(buffer);
             delete[] buffer;
-            // printProgressBar();
         }
         else
         {
             // read the file frome text file
             FileService requestFile;
-            // requestFile.readinput();
             requestFile.readUserInput("input.txt");
             // define what file need to be download
             updateDownloadQueue(requestFile);
             // get the file need to be download
             FileService fileRequest = getRequestFile();
+
             fileRequest.sendFileArr(socket);
         }
         if (checkStopCondition())
@@ -159,6 +159,7 @@ void Controller::deserializeData(char* bufferData)
     fo.close();
     // update the process of the file
     string fileNameStr(fileName);
+    // cout << "File name: " << fileNameStr << endl;
     updateDowloadProcess(fileNameStr);
 
     delete[] fileName;

@@ -136,12 +136,14 @@
     <ClCompile Include="file.cpp" />
     <ClCompile Include="fileService.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="utility.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client.h" />
     <ClInclude Include="controller.h" />
     <ClInclude Include="file.h" />
     <ClInclude Include="fileService.h" />
+    <ClInclude Include="utility.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="input.txt" />

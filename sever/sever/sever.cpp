@@ -1,5 +1,5 @@
 ﻿#include "sever.h"
-#include <mutex>
+
 
 using namespace std;
 using namespace chrono;
@@ -67,11 +67,11 @@ void HandleClient(SOCKET ClientSocket)
     // check if the client has shut down the connection
     iResult = recv(ClientSocket, (char*)&iResult, sizeof(iResult), 0);
     if (iResult == 0)
-	{
-		std::cerr << "Connection closed by client" << std::endl;
-		closesocket(ClientSocket);
-		return;
-	}
+    {
+        std::cerr << "Connection closed by client" << std::endl;
+        closesocket(ClientSocket);
+        return;
+    }
     // Shutdown the connection since we're done
     iResult = shutdown(ClientSocket, SD_SEND);
     if (iResult == SOCKET_ERROR)

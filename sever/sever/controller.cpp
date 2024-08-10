@@ -27,75 +27,166 @@ bool checkClientShutdown(int recvCode)
 }
 void Controller::run()
 {
-    //  create file service
+    // //  create file service
+    // FileService fileService;
+    // // get file array frome computer to file service
+    // fileService.setFileArr();
+    // // send file array to client
+    // fileService.sendFileArr(socket);
+
+    // vector <FileProcess> fileDownloadQueue;
+
+    // auto start = steady_clock::now();
+    // auto next_action_time = start; //
+    // bool stop = false; // flag to stop the loop
+
+
+    // int currentFile = 0;
+    // int maxFile = 0;
+    // // loop to send file to client
+
+    // bool theFirst = true;
+
+    // while (!stop)
+    // {
+    //     auto now = steady_clock::now();
+
+    //     if (duration_cast<seconds>(now - next_action_time).count() <= 2 && !theFirst)
+    //     {
+    //         // system("cls");
+    //         // send flag to client to notify that now the sever will send the file to the client
+    //         bool flag = true;
+    //         int byteSend = send(socket, (char*)&flag, sizeof(flag), 0);
+
+    //         if (!checkClientShutdown(byteSend))
+    //         {
+    //             cout << "client disconnected" << endl;
+    //             stop = true;
+    //             break;
+    //         }
+
+    //         if (currentFile == maxFile)
+    //         {
+    //             fileDownloadQueue = createDowloadLine();
+    //             maxFile = fileDownloadQueue.size();
+    //             currentFile = 0;
+    //         }
+
+    //         int bufferSize = 0;
+    //         char* buffer = getDataChunk(fileDownloadQueue[currentFile], bufferSize);
+    //         // send the buffer size to client
+    //         byteSend = send(socket, (char*)&bufferSize, sizeof(bufferSize), 0);
+    //         if (!checkClientShutdown(byteSend))
+    //         {
+    //             cout << "client disconnected" << endl;
+    //             stop = true;
+    //             break;
+    //         }
+    //         // send the buffer to
+    //         byteSend = send(socket, buffer, bufferSize, 0);
+    //         delete[] buffer;
+    //         if (!checkClientShutdown(byteSend))
+    //         {
+    //             cout << "client disconnected" << endl;
+    //             stop = true;
+    //             break;
+    //         }
+    //         currentFile++;
+
+
+    //         if (currentFile == maxFile)
+    //         {
+    //             fileDownloadQueue = createDowloadLine();
+    //             maxFile = fileDownloadQueue.size();
+    //             currentFile = 0;
+    //         }
+
+
+
+    //         // std::this_thread::sleep_for(milliseconds(0)); // wait a bit to make sure not to call continuously
+    //     }
+    //     else
+    //     {
+    //         // sennd flag to client to notify that the client need to send the file array to sever again
+    //         bool flag = false;
+    //         int byteSend = send(socket, (char*)&flag, sizeof(flag), 0);
+    //         if (!checkClientShutdown(byteSend))
+    //         {
+    // 			cout << "client disconnected" << endl;
+    // 			stop = true;
+    // 			break;
+    // 		}
+    //         FileService requestFile;
+    //         // recv the file array from client
+    //         if (!requestFile.receiveFileArr(socket))
+    //         {
+    //             cout << "client disconnected" << endl;
+    //             stop = true;
+    // 			break;
+    //         }
+    //         // update the queue dowload file
+    //         updateFileQueue(requestFile);
+    //         // tesing the file queue
+    //         next_action_time = steady_clock::now();
+    //         theFirst = false;
+    //     }
+
+    //     // stop condition
+    //     if (maxFile == 0 && isAllFileDone() && !theFirst)
+    //     {
+    //         cout << "all file have been sent to the client" << endl;
+    //         stop = true;
+    //         break;
+    //     }
+    //     // check if all the file have been sent to the client
+
+    // }
+
+//  create file service
     FileService fileService;
     // get file array frome computer to file service
     fileService.setFileArr();
     // send file array to client
     fileService.sendFileArr(socket);
 
-    vector <FileProcess> fileDownloadQueue;
 
     auto start = steady_clock::now();
     auto next_action_time = start; //
     bool stop = false; // flag to stop the loop
 
 
-    int currentFile = 0;
-    int maxFile = 0;
-    // loop to send file to client
-
     bool theFirst = true;
-   
+
+
+    queue<FileProcess> fileDownloadQueue;
+
     while (!stop)
     {
         auto now = steady_clock::now();
 
         if (duration_cast<seconds>(now - next_action_time).count() <= 2 && !theFirst)
         {
-            // system("cls");
             // send flag to client to notify that now the sever will send the file to the client
             bool flag = true;
             int byteSend = send(socket, (char*)&flag, sizeof(flag), 0);
-            if (!checkClientShutdown(byteSend))
-            {
-                cout << "client disconnected" << endl;
-                stop = true;
-                break;
-            }
-            if (currentFile == maxFile)
-            {
-                fileDownloadQueue = createDowloadLine();
-                maxFile = fileDownloadQueue.size();
-                currentFile = 0;
-            }
 
             int bufferSize = 0;
-            char* buffer = getDataChunk(fileDownloadQueue[currentFile], bufferSize);
-            // send the buffer size to client
-            byteSend = send(socket, (char*)&bufferSize, sizeof(bufferSize), 0);
-            if (!checkClientShutdown(byteSend))
-            {
-                cout << "client disconnected" << endl;
-                stop = true;
-                break;
-            }
-            // send the buffer to
-            byteSend = send(socket, buffer, bufferSize, 0);
-            if (!checkClientShutdown(byteSend))
-            {
-                cout << "client disconnected" << endl;
-                stop = true;
-                break;
-            }
-            currentFile++;
-            if (currentFile == maxFile)
+            if (fileDownloadQueue.empty())
             {
                 fileDownloadQueue = createDowloadLine();
-                maxFile = fileDownloadQueue.size();
-                currentFile = 0;
+                if (fileDownloadQueue.empty())
+                {
+                    cout << "all file have been sent to the client" << endl;
+                    break;
+                }
             }
 
+            char* buffer = getDataChunk(fileDownloadQueue.front(), bufferSize);
+            fileDownloadQueue.pop();
+            // send the buffer size to client
+            sendNumber(socket, bufferSize);
+            // send the buffer to
+            send(socket, buffer, bufferSize, 0);
             delete[] buffer;
 
             // std::this_thread::sleep_for(milliseconds(0)); // wait a bit to make sure not to call continuously
@@ -104,35 +195,18 @@ void Controller::run()
         {
             // sennd flag to client to notify that the client need to send the file array to sever again
             bool flag = false;
-            int byteSend = send(socket, (char*)&flag, sizeof(flag), 0);
-            if (!checkClientShutdown(byteSend))
-            {
-				cout << "client disconnected" << endl;
-				stop = true;
-				break;
-			}
+            send(socket, (char*)&flag, sizeof(flag), 0);
             FileService requestFile;
             // recv the file array from client
-            if (!requestFile.receiveFileArr(socket))
-            {
-                cout << "client disconnected" << endl;
-                stop = true;
-				break;
-            }
+            requestFile.receiveFileArr(socket);
             // update the queue dowload file
             updateFileQueue(requestFile);
             // tesing the file queue
             next_action_time = steady_clock::now();
             theFirst = false;
+
         }
 
-        // stop condition
-        if (maxFile == 0 && isAllFileDone() && !theFirst)
-        {
-            cout << "all file have been sent to the client" << endl;
-            stop = true;
-            break;
-        }
         // check if all the file have been sent to the client
 
     }
@@ -149,9 +223,9 @@ bool Controller::isAllFileDone()
     }
     return true;
 }
-vector<FileProcess> Controller::createDowloadLine()
+queue<FileProcess> Controller::createDowloadLine()
 {
-    vector<FileProcess> fileDownloadQueue;
+    queue<FileProcess> fileDownloadQueue;
     int size = fileQueue.size();
     for (int i = 0; i < size; i++)
     {
@@ -162,7 +236,7 @@ vector<FileProcess> Controller::createDowloadLine()
 
         for (int j = 0; j < downloadSpeed(fileQueue[i]); j++)
         {
-            fileDownloadQueue.push_back(fileQueue[i]);
+            fileDownloadQueue.push(fileQueue[i]);
             fileQueue[i].process++;
 
             if (fileQueue[i].process == fileQueue[i].maxProcess)

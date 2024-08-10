@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <thread>
 #include <chrono>
+#include <mutex>
 #include "fileService.h"
 #include "controller.h"
 using namespace std;

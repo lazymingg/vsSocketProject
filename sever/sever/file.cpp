@@ -1,6 +1,6 @@
 ﻿#include "file.h"
 
-// Getter and Setter
+// // Getter and Setter
 string File::getName()
 {
     return name;
@@ -11,12 +11,12 @@ void File::setName(string name)
     this->name = name;
 }
 
-int64_t File::getSize()
+long long File::getSize()
 {
     return size;
 }
 
-void File::setSize(int64_t size)
+void File::setSize(long long size)
 {
     this->size = size;
 }
@@ -36,14 +36,11 @@ char* File::serialize(int& buffer_size)
 {
 
     int nameSize = this->name.size();
-    buffer_size = sizeof(int) + sizeof(nameSize) + nameSize + sizeof(this->size) + sizeof(this->priority);
+    buffer_size = sizeof(nameSize) + nameSize + sizeof(this->size) + sizeof(this->priority);
 
     char* buffer = new char[buffer_size];
     // copy data to buffer
     int offset = 0;
-    // copy buffer size to buffer
-    memcpy(buffer + offset, &buffer_size, sizeof(buffer_size));
-    offset += sizeof(buffer_size);
     // copy name size to buffer
     memcpy(buffer + offset, &nameSize, sizeof(nameSize));
     offset += sizeof(nameSize);
@@ -60,24 +57,25 @@ char* File::serialize(int& buffer_size)
 
 void File::deserialize(char* buffer)
 {
-    int offset = 0;
+    int offSet = 0;
     int nameSize;
     // copy name size from buffer
-    memcpy(&nameSize, buffer + offset, sizeof(nameSize));
-    offset += sizeof(nameSize);
-    string name(buffer + offset, nameSize);
-    // copy name from buffer
-    offset += nameSize;
-    int64_t size;
-    memcpy(&size, buffer + offset, sizeof(size));
-    // copy size from buffer
-    offset += sizeof(size);
-    FileDowloadPriority priority;
-    memcpy(&priority, buffer + offset, sizeof(priority));
+    memcpy(&nameSize, buffer + offSet, sizeof(nameSize));
+    offSet += sizeof(nameSize);
 
+    // copy name from buffer
+    char* name = new char[nameSize + 1];
+    memcpy(name, buffer + offSet, nameSize);
+    name[nameSize] = '\0';
     this->name = name;
-    this->size = size;
-    this->priority = priority;
+    offSet += nameSize;
+
+    // copy size from buffer
+    memcpy(&this->size, buffer + offSet, sizeof(this->size));
+    offSet += sizeof(this->size);
+    // copy priority from buffer
+    memcpy(&this->priority, buffer + offSet, sizeof(this->priority));
+    delete[] name;
 }
 
 string File::getPriorityString()

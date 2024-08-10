@@ -84,7 +84,6 @@ private:
     void deserializeData(char* bufferData);
     void updateFileQueue(FileService fileService);
     void updateDownloadQueue(FileService userRequest);
-    FileService ConvertFileQueueToFileService();
     void updateDowloadProcess(string fileName);
     bool checkStopCondition();
     void printProgressBar();

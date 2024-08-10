@@ -6,7 +6,7 @@
 #include <fstream>
 #include "fileService.h"
 #include "sever.h"
-
+#include "file.h"
 using namespace std;
 #pragma comment(lib, "ws2_32.lib")
 
