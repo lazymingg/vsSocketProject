@@ -67,11 +67,10 @@ public:
     void updateFileQueue(FileService requestFile);
     char* readData(FileProcess fileProcess, int& dataSize);
     char* serializeData(FileProcess fileProcess, int& bufferSize);
-    void sendFileData();
     void deserializeData(char* bufferData);
     int downloadSpeed(FileProcess fileProcess);
     char* getDataChunk(FileProcess& fileProcess, int& bufferSize);
-    vector<FileProcess> createDowloadLine();
+    queue<FileProcess> createDowloadLine();
     bool isAllFileDone();
 private:
     vector<FileProcess> fileQueue;

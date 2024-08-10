@@ -57,26 +57,25 @@ void signalHandler(int signum, bool &stop)
 
 void Controller::run()
 {
-    //// do something
-    //FileService fileService;
-    //fileService.receiveFileArr(socket);
-    //cout << "===================================================" << endl;
-    //cout << "Here is the file from server: \n";
-    //for (File file : fileService.getFileArr())
-    //{
-    //    cout << "File name: " << file.getName() << endl;
-    //    cout << "File size: " << file.getSize() << endl;
-    //}
-    //cout << "===================================================" << endl;
-    //std::cout << "plz modify ur input.txt before we continue press Enter to continue..." << std::endl;
-    //std::cin.get();
+    // do something
+    FileService fileService;
+    fileService.receiveFileArr(socket);
+    cout << "===================================================" << endl;
+    cout << "Here is the file from server: \n";
+    for (File file : fileService.getFileArr())
+    {
+        cout << "File name: " << file.getName() << endl;
+        cout << "File size: " << file.getSize() << endl;
+    }
+    cout << "===================================================" << endl;
+    std::cout << "plz modify ur input.txt before we continue press Enter to continue..." << std::endl;
+    std::cin.get();
 
-    //updateFileQueue(fileService);
-    //// print file from server
+    updateFileQueue(fileService);
 
     bool flag = true;
 
-    //thread t1(&Controller::printProgressBar, this);
+    thread t1(&Controller::printProgressBar, this);
 
     while (true)
     {
@@ -88,38 +87,28 @@ void Controller::run()
             int buffer_size;
             recv(socket, (char*)&buffer_size, sizeof(buffer_size), 0);
             char* buffer = new char[buffer_size];
-            int a = recv(socket, buffer, buffer_size, 0);
-            cout << "byte receive: " << a << endl;
-            //deserializeData(buffer);
+            recv(socket, buffer, buffer_size, 0);
+            deserializeData(buffer);
             delete[] buffer;
-            // printProgressBar();
         }
         else
         {
-            int buffer_size;
-            recv(socket, (char*)&buffer_size, sizeof(buffer_size), 0);
-            char* buffer = new char[buffer_size];
-            int a = recv(socket, buffer, buffer_size, 0);
-            cout << "byte receive: " << a << endl;
-            //deserializeData(buffer);
-            delete[] buffer;
-        //    // read the file frome text file
-        //    FileService requestFile;
-        //    // requestFile.readinput();
-        //    requestFile.readUserInput("input.txt");
-        //    // define what file need to be download
-        //    updateDownloadQueue(requestFile);
-        //    // get the file need to be download
-        //    FileService fileRequest = getRequestFile();
-        //    fileRequest.sendFileArr(socket);
+            // read the file frome text file
+            FileService requestFile;
+            requestFile.readUserInput("input.txt");
+            // define what file need to be download
+            updateDownloadQueue(requestFile);
+            // get the file need to be download
+            FileService fileRequest = getRequestFile();
+            fileRequest.sendFileArr(socket);
         }
-        /*if (checkStopCondition())
+        if (checkStopCondition())
         {
             done = true;
             break;
-        }*/
+        }
     }
-    //t1.join();
+    t1.join();
     printProgressBarLastTime();
 }
 
