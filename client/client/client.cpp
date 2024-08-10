@@ -21,8 +21,8 @@ Client::Client()
 
     // Kết nối tới server
     serverAddr.sin_family = AF_INET;
-    serverAddr.sin_port = htons(8080);
-    inet_pton(AF_INET, "127.0.0.1", &serverAddr.sin_addr);
+    serverAddr.sin_port = htons(0306);
+    inet_pton(AF_INET, "192.168.1.4", &serverAddr.sin_addr);
 
     if (connect(clientSocket, (sockaddr*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR)
     {
